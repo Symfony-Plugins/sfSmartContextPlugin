@@ -21,7 +21,7 @@ class sfSmartContextFilter extends sfFilter
 
     $filterChain->execute();
 
-    if (sfConfig::get('app_smart_context_plugin_enabled', false) !== true) return;
+    if (sfConfig::get('app_smart_context_plugin_enabled', false) !== true || !$this->isTrackable()) return;
 
 	$site = sfConfig::get('app_smart_context_plugin_site', '');
 
@@ -44,6 +44,37 @@ class sfSmartContextFilter extends sfFilter
     }
 
     $response->setContent($new);
+  }
+
+  /**
+   * Test whether the response is trackable.
+   * 
+   * @return  bool
+   */
+  protected function isTrackable()
+  {
+    $request    = $this->context->getRequest();
+    $response   = $this->context->getResponse();
+    $controller = $this->context->getController();
+    
+    // don't add analytics:
+    // * for XHR requests
+    // * if not HTML
+    // * if 304
+    // * if not rendering to the client
+    // * if HTTP headers only
+    if ($request->isXmlHttpRequest() ||
+        strpos($response->getContentType(), 'html') === false ||
+        $response->getStatusCode() == 304 ||
+        $controller->getRenderMode() != sfView::RENDER_CLIENT ||
+        $response->isHeaderOnly())
+    {
+      return false;
+    }
+    else
+    {
+      return true;
+    }
   }
 
 }
