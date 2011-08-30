@@ -18,12 +18,26 @@ class sfSmartContextFilter extends sfFilter
   {
     $request  = $this->context->getRequest();
     $response = $this->context->getResponse();
+    $module   = $this->context->getModuleName();
+    $action   = $this->context->getActionName();
 
     $filterChain->execute();
 
-    if (sfConfig::get('app_smart_context_plugin_enabled', false) !== true || !$this->isTrackable()) return;
+    // Default configuration
+    $site = sfConfig::get('app_smart_context_plugin_site', '');
+    $isEnabled = sfConfig::get('app_smart_context_plugin_enabled', false);
 
-	$site = sfConfig::get('app_smart_context_plugin_site', '');
+    // Module configuration
+    $moduleConfig = sfConfig::get('mod_' . strtolower($module) . '_smart_context', array());
+    if ($isEnabled && isset($moduleConfig['site'])) $site = $moduleConfig['site'];
+    $isEnabled = isset($moduleConfig['enabled']) ? $isEnabled && (bool)$moduleConfig['enabled'] : $isEnabled && (bool)sfConfig::get('app_smart_context_plugin_default_module_enabled', true);
+
+    // Action configuratioon
+    $actionConfig = sfConfig::get('mod_' . strtolower($module) . '_' . $action . '_smart_context', array());
+    if ($isEnabled && isset($actionConfig['site'])) $site = $actionConfig['site'];
+    $isEnabled = isset($actionConfig['enabled']) ? $isEnabled && (bool)$actionConfig['enabled'] : $isEnabled && (bool)sfConfig::get('app_smart_context_plugin_default_action_enabled', true);
+
+    if ($isEnabled !== true || !$this->isTrackable()) return;
 
     $html = array();
     $html[] = '<script type="text/javascript">';
