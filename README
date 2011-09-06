@@ -1,8 +1,8 @@
-# SmartContext integration Plug-in #
+# SmartContext integration Plug-in
 
 The `sfSmartContextPlugin` offers the integrate with [SmartContext](http://www.smartcontext.pl/).
 
-## Instalation ##
+## Instalation
 
   * Install the plugin:
 
@@ -21,11 +21,22 @@ The `sfSmartContextPlugin` offers the integrate with [SmartContext](http://www.s
         common:    ~
         execution: ~
 
-## Configuration ##
+## Configuration
 
-  * Configuration is done in your application's app.yml file:
+  * Global configuration
+
+    Global configuration is done in your application's app.yml file:
 
         all:
           smart_context_plugin:
             site:    http__yoursite.com
             enabled: true
+
+  * Configuration per module
+
+    To disable SmartContext in action **index** in module **default** add to your  ``apps/frontend/modules/default/config/module.yml`` file following configuration:
+
+        all:
+          index:
+            smart_context:
+              enabled: false
